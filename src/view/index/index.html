@@ -1,0 +1,97 @@
+{extend name='main'}
+
+{block name="button"}
+
+{if auth('login/in')}
+<!--<button class='layui-btn layui-btn-sm layui-btn-primary' data-modal="{:url('login/in')}">登 录</button>-->
+{/if}
+
+{if auth('store/index')}
+<!--<button class='layui-btn layui-btn-sm layui-btn-primary' data-open="{:url('store/index')}">插件市场</button>-->
+{/if}
+
+{/block}
+
+{block name='content'}
+<style>
+
+    .plugin-item {
+    }
+
+    .plugin-item:hover .uploadimage {
+        background-position: 0 0 !important;
+    }
+
+    .plugin-item-icon {
+        width: 100%;
+        padding-top: 30%;
+        margin-bottom: 0;
+    }
+
+    .plugin-item-name {
+        left: 0;
+        right: 0;
+        color: #fff;
+        bottom: 0;
+        padding: 0.8em 0;
+        position: absolute;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .plugin-item-tags {
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 3px 5px;
+        position: absolute;
+    }
+
+    .plugin-item-tags .layui-badge {
+        box-shadow: 1px 1px 2px 0 rgba(50, 50, 54, 0.5);
+    }
+
+
+</style>
+
+<div class="layui-card think-box-shadow">
+    <div class="layui-body-header">当前已经安装的插件</div>
+    <div class="layui-card-body">
+        <div class="layui-row layui-col-space20 margin-top-20">
+            {foreach $items as $item}
+            <div class="layui-col-xs12 layui-col-md6 layui-col-sm4 layui-col-lg3">
+                <div class="plugin-item">
+                    <div class="plugin-item-icon uploadimage" style="background-image:url('{$item.cover|default=\'\'}')">
+                        <div class="plugin-item-tags">
+                            <span class="layui-badge layui-bg-cyan">{$item.code|default=''}</span>
+                            {if empty(floatval($item.amount))}
+                            <span class="layui-badge layui-bg-green">免费</span>
+                            {else}
+                            <span class="layui-badge layui-bg-blue">￥{$item.amount|default='0.00'}</span>
+                            {/if}
+                            <br>
+                            {notempty name='item.version'}
+                            <span class="layui-badge think-bg-violet">已安装：{$item.version|default=''}</span>
+                            {/notempty}
+                        </div>
+                        <div class="plugin-item-name">
+                            <div class="layui-elip">{$item.name}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="margin-top-10">
+                    {notempty name='item.mymenus'}
+                    <a class="layui-btn layui-btn-sm" href="{:url('layout/'.encode($item.code),[],false,false)}">管理插件</a>
+                    {else}
+                    <a class="layui-btn layui-btn-sm layui-btn-disabled">未配置菜单</a>
+                    {/notempty}
+                </div>
+            </div>
+            {/foreach}
+        </div>
+        <div>
+
+        </div>
+    </div>
+</div>
+{/block}

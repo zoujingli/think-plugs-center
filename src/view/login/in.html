@@ -1,0 +1,26 @@
+<form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card" data-table-id="UserTable">
+    <div class="layui-card-body padding-left-40">
+
+        <div class="layui-form-item">
+            <label class="relative block">
+                <span class="help-label"><b>登录邮箱</b>Email</span>
+                <input name="email" value='{$vo.email|default=""}' required pattern="^.{4,}$" placeholder="请输入登录邮箱账号" class="layui-input">
+            </label>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="relative block">
+                <span class="help-label"><b>登录密码</b>Password</span>
+                <input type="password" name="password" maxlength="32" required placeholder="请输入登录密码" class="layui-input">
+            </label>
+        </div>
+    </div>
+
+    <div class="hr-line-dashed"></div>
+    {notempty name='vo.id'}<input type='hidden' value='{$vo.id}' name='id'>{/notempty}
+
+    <div class="layui-form-item text-center">
+        <button class="layui-btn" type='submit'>立即登录</button>
+        <button class="layui-btn layui-btn-danger" type='button' data-close>取消登录</button>
+    </div>
+</form>
