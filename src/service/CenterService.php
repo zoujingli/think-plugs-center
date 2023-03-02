@@ -19,8 +19,8 @@ declare (strict_types=1);
 namespace plugin\center\service;
 
 use think\admin\Exception;
-use think\admin\extend\CodeExtend;
 use think\admin\extend\JsonRpcClient;
+use think\admin\install\Support;
 use think\admin\Library;
 
 /**
@@ -31,7 +31,7 @@ use think\admin\Library;
 class CenterService
 {
     private static $token = '';
-    private static $savek = 'jwt-token';
+    private static $cache = 'jwt-token';
 
     /**
      * 请用远程接口
@@ -66,7 +66,7 @@ class CenterService
         if ($force || empty(static::$token)) {
             static::$token = ' '; // 重置令牌并占位
             static::$token = static::call('login.token');
-            Library::$sapp->cache->set(static::$savek, static::$token);
+            Library::$sapp->cache->set(static::$cache, static::$token);
         }
     }
 
@@ -77,8 +77,8 @@ class CenterService
      */
     private static function _create(string $name): JsonRpcClient
     {
-        $token = static::$token ?: Library::$sapp->cache->get(static::$savek);
-        $action = CodeExtend::deSafe64('aHR0cHM6Ly9vcGVuLmN1Y2kuY2MvcGx1Z2luL2FwaS9qc29ucnBj');
-        return new JsonRpcClient($action, ["jwt-name: {$name}", "jwt-token: {$token}"]);
+        $rpc = Support::getServer() . 'plugin/api/jsonrpc';
+        $token = static::$token ?: Library::$sapp->cache->get(static::$cache);
+        return new JsonRpcClient($rpc, ["jwt-name:{$name}", "jwt-token:{$token}"]);
     }
 }
