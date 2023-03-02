@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | Center Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2023 Anyon <zoujingli@qq.com>
+// | 版权所有 2014~2023 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,7 +18,8 @@ declare (strict_types=1);
 
 namespace plugin\center\controller;
 
-use plugin\center\service\CenterService;
+use plugin\center\service\ApiService;
+use plugin\center\service\LoginService;
 use think\admin\Builder;
 use think\admin\Controller;
 
@@ -29,23 +30,37 @@ use think\admin\Controller;
  */
 class Login extends Controller
 {
+
+    public function check()
+    {
+
+    }
+
     /**
      * 插件用户登录
      * @auth true
      * @return void
      * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     public function in()
     {
         if ($this->request->isGet()) {
-            $this->captcha = CenterService::call('login.captcha');
-            Builder::mk()
-                ->addTextInput('username', '登录邮箱', 'Email', true, '用户登录账号，请输入登录的邮箱账号！')
-                ->addPassInput('password', '登录密码', 'Password', true, '用户登录密码，请输入登录账号的密码！')
-                // ->addTextInput('wechat', '微信账号', 'WeChat', true, '请填写你的微信号')
-                ->addSubmitButton('立即登录')
-                ->addCancelButton('取消登录')
-                ->fetch();
+            $info = LoginService::check();
+            if ($info['code'] === 'wxqrc') {
+                $this->wxqrc = $info['wxqrc'];
+                $this->fetch('wxqrc');
+            } else {
+                Builder::mk()
+                    ->addTextInput('username', '登录邮箱', 'Email', true, '用户登录账号，请输入登录的邮箱账号！')
+                    ->addPassInput('password', '登录密码', 'Password', true, '用户登录密码，请输入登录账号的密码！')
+                    // ->addTextInput('wechat', '微信账号', 'WeChat', true, '请填写你的微信号')
+                    ->addSubmitButton('立即登录')
+                    ->addCancelButton('取消登录')
+                    ->fetch();
+            }
         } else {
             $data = $this->_vali([
                 'email.email'      => '电子邮箱格式错误！',
@@ -55,7 +70,7 @@ class Login extends Controller
                 'password.require' => '登录密码不能为空！',
             ]);
             $data['password'] = md5($data['password'] . $data['uniqid']);
-            $this->user = CenterService::call('login.in', $data['email'], $data['verify'], $data['password']);
+            $this->user = ApiService::call('login.in', $data['email'], $data['verify'], $data['password']);
             if (empty($this->user)) {
                 $this->error('登录失败！');
             } else {
@@ -68,10 +83,13 @@ class Login extends Controller
      * 用户注册管理
      * @auth true
      * @return void
+     * @throws \think\admin\Exception
      */
     public function register()
     {
         if ($this->request->isGet()) {
+            $info = LoginService::check();
+            exit;
             Builder::mk()
                 ->addTextInput('username', '登录邮箱', 'Email', true, '请输入常用邮箱，该邮箱账号用于登录授权！', 'email')
                 ->addTextInput('password', '登录密码', "Password", true, '请输入登录密码，密码长度不得少于6位字符！', '.{6,}')
@@ -86,7 +104,7 @@ class Login extends Controller
                 'password.require' => '登录密码不能为空！',
                 'wechat.default'   => '',
             ]);
-            $result = CenterService::call('login.register', $data);
+            $result = ApiService::call('login.register', $data);
             $this->success('请求成功！', $data, $result);
         }
     }

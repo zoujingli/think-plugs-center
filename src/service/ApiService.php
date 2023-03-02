@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | Center Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2023 Anyon <zoujingli@qq.com>
+// | 版权所有 2014~2023 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -25,10 +25,10 @@ use think\admin\Library;
 
 /**
  * 应用插件服务
- * Class CenterService
+ * @class ApiService
  * @package plugin\center\service
  */
-class CenterService
+class ApiService
 {
     private static $token = '';
     private static $cache = 'jwt-token';

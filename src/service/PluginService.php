@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | Center Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2023 Anyon <zoujingli@qq.com>
+// | 版权所有 2014~2023 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -71,7 +71,7 @@ class PluginService
     public static function getOnlinePlugs(): array
     {
         $data = [];
-        foreach (CenterService::call('plugin.all') as $item) {
+        foreach (ApiService::call('plugin.all') as $item) {
             $data[$item['package']] = $item;
         }
         return $data;
@@ -85,7 +85,7 @@ class PluginService
      */
     public static function get(string $name = '')
     {
-        return CenterService::call('plugin.get', $name);
+        return ApiService::call('plugin.get', $name);
     }
 
     /**

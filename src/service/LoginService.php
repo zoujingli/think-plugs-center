@@ -14,20 +14,27 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-center
 // +----------------------------------------------------------------------
 
-use plugin\center\service\PluginService;
+declare (strict_types=1);
 
-if (!function_exists('plguri')) {
+namespace plugin\center\service;
+
+use think\admin\install\Support;
+
+class LoginService
+{
     /**
-     * 生成插件后台 URL 地址
-     * @param string $url 路由地址
-     * @param array $vars PATH 变量
-     * @param boolean|string $suffix 后缀
-     * @param boolean|string $domain 域名
-     * @return string
+     * 检查系统是否需要登录
+     * @return array
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
-    function plguri(string $url = '', array $vars = [], $suffix = true, $domain = false): string
+    public static function check(): array
     {
-        $code = encode(PluginService::getCode());
-        return sysuri("layout/{$code}", [], false) . '#' . url($url, $vars, $suffix, $domain)->build();
+        $cpuid = Support::getServerId();
+        $sysid = Support::getSystemId();
+        $ucode = sysconf('base.plugin_bind|raw') ?: '';
+        return ApiService::call('login.check', $cpuid, $sysid, $ucode);
     }
 }
