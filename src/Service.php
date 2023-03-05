@@ -20,8 +20,6 @@ namespace plugin\center;
 
 use think\admin\Plugin;
 
-include __DIR__ . DIRECTORY_SEPARATOR . 'helper.php';
-
 /**
  * 组件注册服务
  * Class Service

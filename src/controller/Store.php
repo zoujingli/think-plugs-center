@@ -18,6 +18,7 @@ namespace plugin\center\controller;
 
 use plugin\center\service\PluginService;
 use think\admin\Controller;
+use think\admin\service\ModuleService;
 
 /**
  * 插件市场管理
@@ -52,7 +53,7 @@ class Store extends Controller
         $this->title = '插件详情';
         $this->name = $this->get['code'] ?? '';
         $this->data = PluginService::get($this->name);
-        $this->data['version'] = PluginService::getLocalLibrarys($this->data['package']);
+        $this->data['version'] = ModuleService::getLibrarys($this->data['package']);
         if (empty($this->data)) $this->error('无效的插件标识！');
         $this->fetch();
     }

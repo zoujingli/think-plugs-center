@@ -18,9 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\center\controller;
 
-use plugin\center\service\ApiService;
 use plugin\center\service\LoginService;
-use think\admin\Builder;
 use think\admin\Controller;
 
 /**
@@ -31,15 +29,9 @@ use think\admin\Controller;
 class Login extends Controller
 {
 
-    public function check()
-    {
-
-    }
-
     /**
      * 插件用户登录
      * @auth true
-     * @return void
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
@@ -49,77 +41,67 @@ class Login extends Controller
     {
         if ($this->request->isGet()) {
             $info = LoginService::check();
-            if ($info['code'] === 'wxqrc') {
-                $this->wxqrc = $info['wxqrc'];
-                $this->fetch('wxqrc');
-            } else {
-                Builder::mk()
-                    ->addTextInput('username', '登录邮箱', 'Email', true, '用户登录账号，请输入登录的邮箱账号！')
-                    ->addPassInput('password', '登录密码', 'Password', true, '用户登录密码，请输入登录账号的密码！')
-                    // ->addTextInput('wechat', '微信账号', 'WeChat', true, '请填写你的微信号')
-                    ->addSubmitButton('立即登录')
-                    ->addCancelButton('取消登录')
-                    ->fetch();
-            }
+            if ($info['code'] === 'null') $this->error($info['message']);
+            if ($info['code'] === 'done') $this->success('已经完成登录！');
+            if ($info['code'] === 'wxqrc') $this->fetch('wxqrc', ['vo' => $info]);
+            if ($info['code'] === 'login') $this->fetch('login');
+            $this->error('接口服务异常，请稍候再试！');
         } else {
             $data = $this->_vali([
-                'email.email'      => '电子邮箱格式错误！',
-                'email.require'    => '电子邮箱不能为空！',
-                'verify.require'   => '图形验证不能为空！',
-                'uniqid.require'   => '图形标识不能为空！',
-                'password.require' => '登录密码不能为空！',
+                'email.email'    => '邮箱格式错误！',
+                'email.require'  => '邮箱不能为空！',
+                'verify.require' => '验证码不能为空！'
             ]);
-            $data['password'] = md5($data['password'] . $data['uniqid']);
-            $this->user = ApiService::call('login.in', $data['email'], $data['verify'], $data['password']);
-            if (empty($this->user)) {
-                $this->error('登录失败！');
-            } else {
+            if (LoginService::bind($data['email'], $data['verify'])) {
                 $this->success('登录成功！');
+            } else {
+                $this->success('登录失败！');
             }
         }
     }
 
     /**
-     * 用户注册管理
+     * 检查用户状态
      * @auth true
-     * @return void
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function check()
+    {
+        $this->success('当前用户状态', LoginService::check());
+    }
+
+    /**
+     * 发送邮箱验证码
+     * @auth true
      * @throws \think\admin\Exception
      */
-    public function register()
+    public function sender()
     {
-        if ($this->request->isGet()) {
-            $info = LoginService::check();
-            exit;
-            Builder::mk()
-                ->addTextInput('username', '登录邮箱', 'Email', true, '请输入常用邮箱，该邮箱账号用于登录授权！', 'email')
-                ->addTextInput('password', '登录密码', "Password", true, '请输入登录密码，密码长度不得少于6位字符！', '.{6,}')
-                ->addTextInput('wechat', '常用微信号', 'WeChat', false, '请输入常用微信号，前期已入会的会员将通过此微信号绑定！')
-                ->addSubmitButton('立即注册')
-                ->addCancelButton('取消注册')
-                ->fetch();
+        $data = $this->_vali([
+            'email.email'   => '邮箱格式错误！',
+            'email.require' => '邮箱不能为空！',
+        ]);
+        if (LoginService::sender($data['email'])) {
+            $this->success('发送验证码成功！');
         } else {
-            $data = $this->_vali([
-                'username.email'   => '邮箱账号格式错误！',
-                'username.require' => '邮箱账号不能为空！',
-                'password.require' => '登录密码不能为空！',
-                'wechat.default'   => '',
-            ]);
-            $result = ApiService::call('login.register', $data);
-            $this->success('请求成功！', $data, $result);
+            $this->success('发送验证码失败！');
         }
     }
 
     /**
-     * 找回登录密码
+     * 退出登录
      * @auth true
-     * @return void
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
-    public function forget()
+    public function logout()
     {
-        $data = $this->_vali([
-            'mail.email'   => '邮箱账号格式错误！',
-            'mail.require' => '邮箱账号不能为空！',
-        ]);
-        $this->success('请求成功！', $data);
+        LoginService::logout();
+        $this->success('退出登录成功！');
     }
 }

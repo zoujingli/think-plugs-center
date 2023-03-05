@@ -18,6 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\center\controller;
 
+use plugin\center\service\LoginService;
 use plugin\center\service\PluginService;
 use think\admin\Controller;
 use think\admin\Plugin;
@@ -37,9 +38,17 @@ class Index extends Controller
      * @menu true
      * @return void
      * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     public function index()
     {
+        $login = LoginService::check();
+        if ($login['code'] === 'done') {
+            $this->user = $login['user'];
+            $this->vips = $this->user['extra']['vips_total'] ?? 0;
+        }
         $this->title = '管理已安装插件';
         $this->items = PluginService::getLocalPlugs();
         $this->fetch();

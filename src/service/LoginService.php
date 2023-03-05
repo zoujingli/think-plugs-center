@@ -18,12 +18,10 @@ declare (strict_types=1);
 
 namespace plugin\center\service;
 
-use think\admin\install\Support;
-
 class LoginService
 {
     /**
-     * 检查系统是否需要登录
+     * 检查登录状态
      * @return array
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
@@ -32,9 +30,80 @@ class LoginService
      */
     public static function check(): array
     {
-        $cpuid = Support::getServerId();
-        $sysid = Support::getSystemId();
-        $ucode = sysconf('base.plugin_bind|raw') ?: '';
-        return ApiService::call('login.check', $cpuid, $sysid, $ucode);
+        $ucode = sysdata('PluginLoginUser')['ucode'] ?? '';
+        $result = ApiService::call('login.check', $ucode);
+        if ($result['code'] === 'done') {
+            self::saveLoginInfo($result['user']['code']);
+        }
+        return $result;
+    }
+
+    /**
+     * 用户绑定主账号
+     * @param string $email 用户邮箱
+     * @param string $verify 验证编码
+     * @return bool
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function bind(string $email, string $verify): bool
+    {
+        $auth = ApiService::call('login.bind', $email, $verify);
+        if (empty($auth['user']['code'])) return false;
+        return self::saveLoginInfo($auth['user']['code']);
+    }
+
+    /**
+     * 退出登录状态
+     * @return bool
+     * @throws \think\admin\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function logout(): bool
+    {
+        ApiService::call('login.logout');
+        return self::clearLoginInfo();
+    }
+
+    /**
+     * 发送邮箱验证码
+     * @param string $email 用户邮箱
+     * @return bool
+     * @throws \think\admin\Exception
+     */
+    public static function sender(string $email): bool
+    {
+        return ApiService::call('login.sender', $email);
+    }
+
+    /**
+     * 保存登录信息
+     * @param string $ucode
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    private static function saveLoginInfo(string $ucode): bool
+    {
+        return !!sysdata('PluginLoginUser', [
+            'ucode' => $ucode, 'utime' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    /**
+     * 清除用户登录信息
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    private static function clearLoginInfo(): bool
+    {
+        return !!sysdata('PluginLoginUser', []);
     }
 }

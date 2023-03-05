@@ -1,0 +1,41 @@
+<form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card">
+    <div class="layui-card-body padding-left-40">
+
+        <div class="layui-form-item">
+            <label class="relative block">
+                <span class="help-label"><b>登录邮箱</b>Email</span>
+                <input name="email" value='{$vo.email|default=""}' pattern="email" required vali-name="邮箱" placeholder="请输入邮箱账号" class="layui-input">
+            </label>
+        </div>
+
+        <div class="layui-form-item">
+            <span class="help-label label-required-prev"><b>邮箱验证码</b>Verify</span>
+            <div class="relative block">
+                <input type="number" name="verify" maxlength="6" pattern="^\d{6}$" required vali-name="验证码" placeholder="请输入邮箱验证码" class="layui-input">
+                <a class="layui-icon layui-icon-email input-right-icon" id="SendEmailVerify" data-tips-text="发送邮箱验证码！"></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="hr-line-dashed"></div>
+    {notempty name='vo.id'}<input type='hidden' value='{$vo.id}' name='id'>{/notempty}
+
+    <div class="layui-form-item text-center">
+        <button class="layui-btn" type='submit'>立即登录</button>
+        <button class="layui-btn layui-btn-danger" type='button' data-close>取消登录</button>
+    </div>
+
+    <script>
+        $(function () {
+            $('#SendEmailVerify').off('click').on('click', function () {
+                $(this).parents('form').vali(null, function (data) {
+                    if (this.checkInput('email')) {
+                        $.form.load('{:url("sender")}', data, 'post', function (ret) {
+                            return $.msg.tips(ret.info) && false;
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</form>

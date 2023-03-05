@@ -22,6 +22,7 @@ use think\admin\Exception;
 use think\admin\extend\JsonRpcClient;
 use think\admin\install\Support;
 use think\admin\Library;
+use think\exception\HttpResponseException;
 
 /**
  * 应用插件服务
@@ -30,9 +31,6 @@ use think\admin\Library;
  */
 class ApiService
 {
-    private static $token = '';
-    private static $cache = 'jwt-token';
-
     /**
      * 请用远程接口
      * @param string $uri 调用接口
@@ -48,25 +46,16 @@ class ApiService
             return static::_create($path)->$name(...$args);
         } catch (Exception $exception) {
             if ($exception->getCode() === 401) {
-                if ('login.token' !== $uri) static::_token(true);
+                if ('login.token' !== $uri) {
+                    Library::$sapp->cache->set('plugin-jwt-token', null);
+                    Library::$sapp->cache->set('plugin-jwt-token', static::call('login.token'));
+                }
                 return static::_create($path)->$name(...$args);
             }
-            throw $exception;
-        }
-    }
-
-    /**
-     * 生成会话令牌
-     * @param boolean $force
-     * @return void
-     * @throws \think\admin\Exception
-     */
-    private static function _token(bool $force = false): void
-    {
-        if ($force || empty(static::$token)) {
-            static::$token = ' '; // 重置令牌并占位
-            static::$token = static::call('login.token');
-            Library::$sapp->cache->set(static::$cache, static::$token);
+            throw new HttpResponseException(json([
+                'code' => $exception->getCode(),
+                'info' => $exception->getMessage()
+            ]));
         }
     }
 
@@ -77,8 +66,12 @@ class ApiService
      */
     private static function _create(string $name): JsonRpcClient
     {
-        $rpc = Support::getServer() . 'plugin/api/jsonrpc';
-        $token = static::$token ?: Library::$sapp->cache->get(static::$cache);
-        return new JsonRpcClient($rpc, ["jwt-name:{$name}", "jwt-token:{$token}"]);
+        if (request()->host() === 'plugin.local.cuci.cc') {
+            $rpc = 'http' . '://plugin.local.cuci.cc/plugin/api/jsonrpc';
+        } else {
+            $rpc = Support::getServer() . 'plugin/api/jsonrpc';
+        }
+        [$token, $client] = [Library::$sapp->cache->get('plugin-jwt-token', '---'), Support::getSysId()];
+        return new JsonRpcClient($rpc, ["jwt-name:{$name}", "jwt-token:{$token}", "jwt-client:{$client}"]);
     }
 }

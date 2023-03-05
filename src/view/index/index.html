@@ -2,12 +2,22 @@
 
 {block name="button"}
 
-{if auth('login/in')}
-<!--<button class='layui-btn layui-btn-sm layui-btn-primary' data-width="400px" data-title="登录插件中心" data-modal="{:url('login/in')}">登 录</button>-->
-{/if}
-
 {if auth('store/index')}
 <!--<button class='layui-btn layui-btn-sm layui-btn-primary' data-open="{:url('store/index')}">插件市场</button>-->
+{/if}
+
+{if auth('login/in')}
+{if empty($user)}
+<button class='layui-btn layui-btn-sm layui-btn-primary' id="ShowLoginButton" data-width="400px" data-title="用户登录 ( 测试中 )" data-modal="{:url('login/in')}">用户登录</button>
+{else}
+{notempty name='vips'}
+<span class="layui-btn layui-btn-sm layui-btn-primary">VIP{$vips}</span>
+{else}
+<span class="layui-btn layui-btn-sm layui-btn-primary">普通用户</span>
+{/notempty}
+<button class='layui-btn layui-btn-sm layui-btn-primary'>{$user.email|default='Undefind Email'}</button>
+<button class='layui-btn layui-btn-sm layui-btn-danger' data-load="{:url('login/logout')}">退出</button>
+{/if}
 {/if}
 
 {/block}
@@ -50,7 +60,6 @@
     .plugin-item-tags .layui-badge {
         box-shadow: 1px 1px 2px 0 rgba(50, 50, 54, 0.5);
     }
-
 
 </style>
 
