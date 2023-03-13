@@ -15,7 +15,7 @@
     "ext-json": "*",
     "zoujingli/think-install": "^1.0||dev-master",
     "zoujingli/think-library": "^6.1||v6.0.x-dev",
-    "zouingli/think-plugs-account": "^1.0||dev-master",
+    "zoujingli/think-plugs-account": "^1.0||dev-master",
     "zoujingli/think-plugs-static": "^1.0||dev-master"
   },
   "autoload": {
