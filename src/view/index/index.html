@@ -73,10 +73,14 @@
                     <div class="plugin-item-icon uploadimage" style="background-image:url('{$item.cover|default=\'\'}')">
                         <div class="plugin-item-tags">
                             <span class="layui-badge layui-bg-cyan">{$item.code|default=''}</span>
-                            {if empty(floatval($item.amount))}
-                            <span class="layui-badge layui-bg-green">免费</span>
-                            {else}
+                            {if $item.license eq 'vips'}
+                            <span class="layui-badge think-bg-violet">会员免费</span>
+                            {elseif $item.license eq 'free'}
+                            <span class="layui-badge layui-bg-green">免费使用</span>
+                            {elseif $item.amount>0}
                             <span class="layui-badge layui-bg-blue">￥{$item.amount|default='0.00'}</span>
+                            {else}
+                            <span class="layui-badge layui-bg-green">推广免费</span>
                             {/if}
                             <br>
                             {notempty name='item.version'}

@@ -46,18 +46,19 @@ class PluginService
             $online = $onlines[$plugin['package']] ?? [];
             $library = $librarys[$plugin['package']] ?? [];
             $data[$plugin['package']] = [
-                'type'      => $online['type'] ?? 'local',
-                'code'      => $code,
-                'name'      => empty($online['name']) ? ($library['name'] ?? '') : $online['name'],
-                'cover'     => empty($online['cover']) ? ($library['cover'] ?? '') : $online['cover'],
-                'amount'    => $online['amount'] ?? '0.00',
-                'remark'    => empty($online['remark']) ? ($library['description'] ?? '') : $online['remark'],
-                'version'   => $library['version'],
-                'service'   => $plugin['service'],
-                'package'   => $plugin['package'],
-                'license'   => empty($library['license']) ? [] : $library['license'],
-                'platforms' => empty($plugin['platforms']) ? ($online['platforms'] ?? []) : $plugin['platforms'],
-                'mymenus'   => $plugin['service']::menu(),
+                'type'         => $online['type'] ?? 'local',
+                'code'         => $code,
+                'name'         => empty($online['name']) ? ($library['name'] ?? '') : $online['name'],
+                'cover'        => empty($online['cover']) ? ($library['cover'] ?? '') : $online['cover'],
+                'amount'       => $online['amount'] ?? '0.00',
+                'remark'       => empty($online['remark']) ? ($library['description'] ?? '') : $online['remark'],
+                'version'      => $library['version'],
+                'service'      => $plugin['service'],
+                'package'      => $plugin['package'],
+                'license'      => $online['license'] ?? (empty($library['license']) ? 'unknow' : $library['license'][0]),
+                'platforms'    => empty($plugin['platforms']) ? ($online['platforms'] ?? []) : $plugin['platforms'],
+                'mymenus'      => $plugin['service']::menu(),
+                'license_name' => $online['license_name'] ?? (empty($online['amount'] ?? '0.00') ? "免费使用" : "收费插件"),
             ];
         }
         return $data;
