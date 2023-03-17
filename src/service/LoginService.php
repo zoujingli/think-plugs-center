@@ -30,10 +30,10 @@ class LoginService
      */
     public static function check(): array
     {
-        $ucode = sysdata('PluginLoginUser')['ucode'] ?? '';
-        $result = ApiService::call('login.check', $ucode);
-        if ($result['code'] === 'done') {
-            self::saveLoginInfo($result['user']['code']);
+        $result = ApiService::call('login.check');
+        if (in_array($result['code'], ['temp', 'done'])) {
+            ApiService::saveToken($result['user']['token']);
+            unset($result['user']['token']);
         }
         return $result;
     }
@@ -51,8 +51,8 @@ class LoginService
     public static function bind(string $email, string $verify): bool
     {
         $auth = ApiService::call('login.bind', $email, $verify);
-        if (empty($auth['user']['code'])) return false;
-        return self::saveLoginInfo($auth['user']['code']);
+        if (empty($auth['user']['token'])) return false;
+        return ApiService::saveToken($auth['user']['token']);
     }
 
     /**
@@ -66,7 +66,7 @@ class LoginService
     public static function logout(): bool
     {
         ApiService::call('login.logout');
-        return self::clearLoginInfo();
+        return ApiService::clearToken();
     }
 
     /**
@@ -78,32 +78,5 @@ class LoginService
     public static function sender(string $email): bool
     {
         return ApiService::call('login.sender', $email);
-    }
-
-    /**
-     * 保存登录信息
-     * @param string $ucode
-     * @return bool
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    private static function saveLoginInfo(string $ucode): bool
-    {
-        return !!sysdata('PluginLoginUser', [
-            'ucode' => $ucode, 'utime' => date('Y-m-d H:i:s')
-        ]);
-    }
-
-    /**
-     * 清除用户登录信息
-     * @return bool
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    private static function clearLoginInfo(): bool
-    {
-        return !!sysdata('PluginLoginUser', []);
     }
 }

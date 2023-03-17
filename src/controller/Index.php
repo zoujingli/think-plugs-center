@@ -36,7 +36,6 @@ class Index extends Controller
      * 管理已安装插件
      * @auth true
      * @menu true
-     * @return void
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
@@ -44,10 +43,10 @@ class Index extends Controller
      */
     public function index()
     {
-        $login = LoginService::check();
-        if ($login['code'] === 'done') {
-            $this->user = $login['user'];
-            $this->vips = $this->user['extra']['vips_total'] ?? 0;
+        $this->login = LoginService::check();
+        if ($this->login['code'] === 'done') {
+            $this->user = $this->login['user'];
+            $this->vips = $this->login['user']['extra']['vips_total'] ?? 0;
         }
         $this->title = '管理已安装插件';
         $this->items = PluginService::getLocalPlugs();

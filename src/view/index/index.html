@@ -7,9 +7,9 @@
 {/if}
 
 {if auth('login/in')}
-{if empty($user)}
-<button class='layui-btn layui-btn-sm layui-btn-primary' id="ShowLoginButton" data-width="400px" data-title="用户登录 ( 测试中 )" data-modal="{:url('login/in')}">用户登录</button>
-{else}
+
+{if $login.code eq 'done'}
+
 {notempty name='vips'}
 <span class="layui-btn layui-btn-sm layui-btn-primary">VIP{$vips}</span>
 {else}
@@ -17,6 +17,13 @@
 {/notempty}
 <button class='layui-btn layui-btn-sm layui-btn-primary'>{$user.email|default='Undefind Email'}</button>
 <button class='layui-btn layui-btn-sm layui-btn-danger' data-load="{:url('login/logout')}">退出</button>
+
+{elseif $login.code eq 'temp'}
+<span class="layui-btn layui-btn-sm layui-btn-primary" data-width="400px" data-title="绑定邮箱 ( 测试中 )" data-modal="{:url('login/in')}">临时用户</span>
+<button class='layui-btn layui-btn-sm layui-btn-primary' data-width="400px" data-title="绑定邮箱 ( 测试中 )" data-modal="{:url('login/in')}">{$login.user.nickname|default='Undefind Nickname'}</button>
+<button class='layui-btn layui-btn-sm layui-btn-danger' data-load="{:url('login/logout')}">退出</button>
+{else}
+<button class='layui-btn layui-btn-sm layui-btn-primary' id="ShowLoginButton" data-width="400px" data-title="用户登录 ( 测试中 )" data-modal="{:url('login/in')}">用户登录</button>
 {/if}
 {/if}
 

@@ -17,11 +17,9 @@
                             ret.qrc = document.getElementById('ShowWxQrcImage');
                             ret.qrc.src = ret.data.wxqrc || 'javascript:void(0)';
                             return setTimeout(doCheckLogin, 1500) && false;
-                        } else if (ret.data.code === 'login') {
+                        } else {
+                            $.form.reload();
                             $.msg.closeThisModal(document.getElementById('ShowWxQrcImage'));
-                            return $('#ShowLoginButton').click() && false;
-                        } else if (ret.data.code === 'done') {
-                            location.reload();
                         }
                     } catch (e) {
                     }

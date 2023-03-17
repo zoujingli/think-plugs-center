@@ -43,6 +43,7 @@ class Login extends Controller
             $info = LoginService::check();
             if ($info['code'] === 'null') $this->error($info['message']);
             if ($info['code'] === 'done') $this->success('已经完成登录！');
+            if ($info['code'] === 'temp') $this->fetch('login');
             if ($info['code'] === 'wxqrc') $this->fetch('wxqrc', ['vo' => $info]);
             if ($info['code'] === 'login') $this->fetch('login');
             $this->error('接口服务异常，请稍候再试！');
@@ -55,7 +56,7 @@ class Login extends Controller
             if (LoginService::bind($data['email'], $data['verify'])) {
                 $this->success('登录成功！');
             } else {
-                $this->success('登录失败！');
+                $this->error('登录失败！');
             }
         }
     }

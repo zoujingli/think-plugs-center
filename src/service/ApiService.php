@@ -43,15 +43,21 @@ class ApiService
         try {
             $uris = explode('.', $uri);
             [$name, $path] = [array_pop($uris), join('.', $uris)];
-            return static::_create($path)->$name(...$args);
+            return self::_create($path)->$name(...$args);
         } catch (Exception $exception) {
             if ($exception->getCode() === 401) {
-                if ('login.token' !== $uri) {
-                    Library::$sapp->cache->set('plugin-jwt-token', null);
-                    Library::$sapp->cache->set('plugin-jwt-token', static::call('login.token'));
+                try {
+                    self::clearToken();
+                    return self::_create($path)->$name(...$args);
+                } catch (\Exception$exception) {
+                    throw new HttpResponseException(json([
+                        'code' => $exception->getCode(),
+                        'info' => $exception->getMessage()
+                    ]));
                 }
-                return static::_create($path)->$name(...$args);
             }
+            throw $exception;
+        } catch (\Exception $exception) {
             throw new HttpResponseException(json([
                 'code' => $exception->getCode(),
                 'info' => $exception->getMessage()
@@ -63,15 +69,48 @@ class ApiService
      * 创建请求对象
      * @param string $name 请求接口名称
      * @return \think\admin\extend\JsonRpcClient
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     private static function _create(string $name): JsonRpcClient
     {
         if (request()->host() === 'plugin.local.cuci.cc') {
-            $rpc = 'http' . '://plugin.local.cuci.cc/plugin/api/jsonrpc';
+            $rpc = 'http:' . '//plugin.local.cuci.cc/plugin/api/jsonrpc';
         } else {
             $rpc = Support::getServer() . 'plugin/api/jsonrpc';
         }
-        [$token, $client] = [Library::$sapp->cache->get('plugin-jwt-token', '---'), Support::getSysId()];
-        return new JsonRpcClient($rpc, ["jwt-name:{$name}", "jwt-token:{$token}", "jwt-client:{$client}"]);
+        $token = Library::$sapp->cache->get('plugin-jwt-token');
+        if (empty($token)) $token = sysdata('plugin.login.token')['token'] ?? '';
+        return new JsonRpcClient($rpc, ["api-name:{$name}", "api-token:{$token}", "api-client:" . Support::getSysId()]);
+    }
+
+    /**
+     * 保存请求令牌
+     * @param string $token
+     * @return boolean
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function saveToken(string $token): bool
+    {
+        Library::$sapp->cache->set('plugin-jwt-token', $token);
+        return !!sysdata('plugin.login.token', [
+            'token' => $token, 'utime' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    /**
+     * 清除请求令牌
+     * @return boolean
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function clearToken(): bool
+    {
+        Library::$sapp->cache->delete('plugin-jwt-token');
+        return !!sysdata('plugin.login.token', []);
     }
 }
