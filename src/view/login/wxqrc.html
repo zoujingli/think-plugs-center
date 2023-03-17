@@ -18,10 +18,11 @@
                             ret.qrc.src = ret.data.wxqrc || 'javascript:void(0)';
                             return setTimeout(doCheckLogin, 1500) && false;
                         } else {
-                            $.form.reload();
                             $.msg.closeThisModal(document.getElementById('ShowWxQrcImage'));
+                            return $.form.reload() && false;
                         }
                     } catch (e) {
+                        return false;
                     }
                 }, false);
             }
