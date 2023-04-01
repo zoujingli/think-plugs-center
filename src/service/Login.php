@@ -24,9 +24,6 @@ class Login
      * 检查登录状态
      * @return array
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public static function check(): array
     {
@@ -42,11 +39,8 @@ class Login
      * 用户绑定主账号
      * @param string $email 用户邮箱
      * @param string $verify 验证编码
-     * @return bool
+     * @return boolean
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public static function bind(string $email, string $verify): bool
     {
@@ -57,11 +51,8 @@ class Login
 
     /**
      * 退出登录状态
-     * @return bool
+     * @return boolean
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public static function logout(): bool
     {
@@ -72,7 +63,7 @@ class Login
     /**
      * 发送邮箱验证码
      * @param string $email 用户邮箱
-     * @return bool
+     * @return boolean
      * @throws \think\admin\Exception
      */
     public static function sender(string $email): bool

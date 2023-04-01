@@ -19,6 +19,7 @@ declare (strict_types=1);
 namespace plugin\center\service;
 
 use think\admin\Exception;
+use think\admin\extend\CodeExtend;
 use think\admin\extend\JsonRpcClient;
 use think\admin\install\Support;
 use think\admin\Library;
@@ -26,7 +27,7 @@ use think\exception\HttpResponseException;
 
 /**
  * 应用插件服务
- * @class ApiService
+ * @class Api
  * @package plugin\center\service
  */
 class Api
@@ -67,31 +68,27 @@ class Api
 
     /**
      * 创建请求对象
-     * @param string $name 请求接口名称
+     * @param string $uri 请求接口名称
      * @return \think\admin\extend\JsonRpcClient
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\admin\Exception
      */
-    private static function _create(string $name): JsonRpcClient
+    private static function _create(string $uri): JsonRpcClient
     {
         if (request()->host() === 'plugin.local.cuci.cc') {
             $rpc = 'http:' . '//plugin.local.cuci.cc/plugin/api/jsonrpc';
         } else {
             $rpc = Support::getServer() . 'plugin/api/jsonrpc';
         }
-        $token = Library::$sapp->cache->get('plugin-jwt-token');
-        if (empty($token)) $token = sysdata('plugin.login.token')['token'] ?? '';
-        return new JsonRpcClient($rpc, ["api-name:{$name}", "api-token:{$token}", "api-client:" . Support::getSysId()]);
+        $scode = CodeExtend::enSafe64(sysconf('base.site_name') . ' # ' . sysconf('base.app_version'));
+        $token = Library::$sapp->cache->get('plugin-jwt-token') ?: (sysdata('plugin.login.token')['token'] ?? '');
+        return new JsonRpcClient($rpc, ["api-name:{$uri}", "api-scode:{$scode}", "api-token:{$token}", "api-client:" . Support::getSysId()]);
     }
 
     /**
      * 保存请求令牌
      * @param string $token
      * @return boolean
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\admin\Exception
      */
     public static function saveToken(string $token): bool
     {
@@ -104,9 +101,7 @@ class Api
     /**
      * 清除请求令牌
      * @return boolean
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\admin\Exception
      */
     public static function clearToken(): bool
     {
