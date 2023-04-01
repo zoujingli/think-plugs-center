@@ -29,7 +29,7 @@ use think\exception\HttpResponseException;
  * @class ApiService
  * @package plugin\center\service
  */
-class ApiService
+class Api
 {
     /**
      * 请用远程接口

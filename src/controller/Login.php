@@ -18,7 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\center\controller;
 
-use plugin\center\service\LoginService;
+use plugin\center\service\Login as LoginService;
 use think\admin\Controller;
 
 /**

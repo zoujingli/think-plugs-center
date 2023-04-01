@@ -18,7 +18,7 @@ declare (strict_types=1);
 
 namespace plugin\center\service;
 
-class LoginService
+class Login
 {
     /**
      * 检查登录状态
@@ -30,9 +30,9 @@ class LoginService
      */
     public static function check(): array
     {
-        $result = ApiService::call('login.check');
+        $result = Api::call('login.check');
         if (in_array($result['code'], ['temp', 'done'])) {
-            ApiService::saveToken($result['user']['token']);
+            Api::saveToken($result['user']['token']);
             unset($result['user']['token']);
         }
         return $result;
@@ -50,9 +50,9 @@ class LoginService
      */
     public static function bind(string $email, string $verify): bool
     {
-        $auth = ApiService::call('login.bind', $email, $verify);
+        $auth = Api::call('login.bind', $email, $verify);
         if (empty($auth['user']['token'])) return false;
-        return ApiService::saveToken($auth['user']['token']);
+        return Api::saveToken($auth['user']['token']);
     }
 
     /**
@@ -65,8 +65,8 @@ class LoginService
      */
     public static function logout(): bool
     {
-        ApiService::call('login.logout');
-        return ApiService::clearToken();
+        Api::call('login.logout');
+        return Api::clearToken();
     }
 
     /**
@@ -77,6 +77,6 @@ class LoginService
      */
     public static function sender(string $email): bool
     {
-        return ApiService::call('login.sender', $email);
+        return Api::call('login.sender', $email);
     }
 }

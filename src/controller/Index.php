@@ -18,12 +18,12 @@ declare (strict_types=1);
 
 namespace plugin\center\controller;
 
-use plugin\center\service\LoginService;
-use plugin\center\service\PluginService;
+use plugin\center\service\Login;
+use plugin\center\service\Plugin;
 use think\admin\Controller;
-use think\admin\Plugin;
 use think\admin\service\AdminService;
 use think\admin\service\MenuService;
+use think\admin\service\RuntimeService;
 
 /**
  * 插件应用管理
@@ -43,21 +43,20 @@ class Index extends Controller
      */
     public function index()
     {
-        $this->login = LoginService::check();
-        if ($this->login['code'] === 'done') {
-            $this->user = $this->login['user'];
-            $this->vips = $this->login['user']['extra']['vips_total'] ?? 0;
-        }
         $this->title = '管理已安装插件';
-        $this->items = PluginService::getLocalPlugs();
+        $this->total = [];
+        $this->login = Login::check();
+        $this->type = $this->request->get('type', 'module');
+        $this->items = Plugin::getLocalPlugs($this->type, $this->total);
+        $this->types = Plugin::types;
         $this->fetch();
     }
 
     /**
      * 显示插件菜单
      * @param string $code
-     * @return void
      * @throws \ReflectionException
+     * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
@@ -68,8 +67,9 @@ class Index extends Controller
         if (empty($code)) {
             $this->error('操作标识不能为空！');
         }
-        PluginService::setCode($code);
-        $this->plugin = Plugin::all($code);
+
+        RuntimeService::swap('plugin-code', $code);
+        $this->plugin = \think\admin\Plugin::all($code);
 
         if (empty($this->plugin)) $this->error('插件未安装！');
 

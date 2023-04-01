@@ -14,7 +14,7 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-center
 // +----------------------------------------------------------------------
 
-use plugin\center\service\PluginService;
+use think\admin\service\RuntimeService;
 
 if (!function_exists('plguri')) {
     /**
@@ -27,7 +27,7 @@ if (!function_exists('plguri')) {
      */
     function plguri(string $url = '', array $vars = [], $suffix = true, $domain = false): string
     {
-        $code = encode(PluginService::getCode());
+        $code = encode(RuntimeService::swap('plugin-code'));
         return sysuri("layout/{$code}", [], false) . '#' . url($url, $vars, $suffix, $domain)->build();
     }
 }

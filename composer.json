@@ -30,6 +30,9 @@
         "plugin\\center\\Service"
       ]
     },
+    "config": {
+      "type": "service"
+    },
     "plugin": {
       "copy": {
         "stc/database": "database/migrations"

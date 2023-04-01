@@ -16,7 +16,6 @@
 
 namespace plugin\center\service;
 
-use think\admin\Plugin;
 use think\admin\service\ModuleService;
 
 /**
@@ -24,41 +23,52 @@ use think\admin\service\ModuleService;
  * Class PluginService
  * @package plugin\center\service
  */
-class PluginService
+class Plugin
 {
-    /**
-     * 当前插件标识
-     * @var string
-     */
-    private static $code;
+    const TYPE_MODULE = 'module';
+    const TYPE_PLUGIN = 'plugin';
+    const TYPE_SERVICE = 'service';
+    const TYPE_LIBRARY = 'library';
+
+    const types = [
+        self::TYPE_MODULE  => '应用模块',
+        self::TYPE_PLUGIN  => '功能插件',
+        self::TYPE_SERVICE => '基础服务',
+        self::TYPE_LIBRARY => '开发组件',
+    ];
 
     /**
      * 获取本地插件
+     * @param ?string $type 插件类型
+     * @param array $total 类型统计
      * @return array
      * @throws \think\admin\Exception
      */
-    public static function getLocalPlugs(): array
+    public static function getLocalPlugs(?string $type = null, array &$total = []): array
     {
         $data = [];
         $onlines = static::getOnlinePlugs();
         $librarys = ModuleService::getLibrarys();
-        foreach (Plugin::all() as $code => $plugin) {
+        foreach (\think\admin\Plugin::all() as $code => $plugin) {
             $online = $onlines[$plugin['package']] ?? [];
             $library = $librarys[$plugin['package']] ?? [];
+            $pluginType = $library['type'] ?? '';
+            $total[$pluginType] = ($total[$pluginType] ?? 0) + 1;
+            if (is_string($type) && $pluginType !== $type) continue;
             $data[$plugin['package']] = [
-                'type'         => $online['type'] ?? 'local',
-                'code'         => $code,
-                'name'         => empty($online['name']) ? ($library['name'] ?? '') : $online['name'],
-                'cover'        => empty($online['cover']) ? ($library['cover'] ?? '') : $online['cover'],
-                'amount'       => $online['amount'] ?? '0.00',
-                'remark'       => empty($online['remark']) ? ($library['description'] ?? '') : $online['remark'],
-                'version'      => $library['version'],
-                'service'      => $plugin['service'],
-                'package'      => $plugin['package'],
-                'license'      => $online['license'] ?? (empty($library['license']) ? 'unknow' : $library['license'][0]),
-                'platforms'    => empty($plugin['platforms']) ? ($online['platforms'] ?? []) : $plugin['platforms'],
-                'mymenus'      => $plugin['service']::menu(),
-                'license_name' => $online['license_name'] ?? (empty($online['amount'] ?? '0.00') ? "免费使用" : "收费插件"),
+                'type'      => $pluginType,
+                'code'      => $code,
+                'name'      => $online['name'] ?? ($library['name'] ?? ''),
+                'cover'     => $online['cover'] ?? ($library['cover'] ?? ''),
+                'amount'    => $online['amount'] ?? '0.00',
+                'remark'    => $online['remark'] ?? ($library['description'] ?? ''),
+                'version'   => $library['version'],
+                'service'   => $plugin['service'],
+                'package'   => $plugin['package'],
+                'license'   => $online['license'] ?? (empty($library['license']) ? 'unknow' : $library['license'][0]),
+                'licenses'  => $online['license_name'] ?? (empty($online['amount'] ?? '0.00') ? "免费使用" : "收费插件"),
+                'platforms' => empty($plugin['platforms']) ? ($online['platforms'] ?? []) : $plugin['platforms'],
+                'plugmenus' => $plugin['service']::menu(),
             ];
         }
         return $data;
@@ -72,7 +82,7 @@ class PluginService
     public static function getOnlinePlugs(): array
     {
         $data = [];
-        foreach (ApiService::call('plugin.all') as $item) {
+        foreach (Api::call('plugin.all') as $item) {
             $data[$item['package']] = $item;
         }
         return $data;
@@ -86,25 +96,6 @@ class PluginService
      */
     public static function get(string $name = '')
     {
-        return ApiService::call('plugin.get', $name);
-    }
-
-    /**
-     * 获取插件标识
-     * @return string
-     */
-    public static function getCode(): string
-    {
-        return static::$code;
-    }
-
-    /**
-     * 设置插件标识
-     * @param string $code
-     * @return string
-     */
-    public static function setCode(string $code = ''): string
-    {
-        return static::$code = $code;
+        return Api::call('plugin.get', $name);
     }
 }

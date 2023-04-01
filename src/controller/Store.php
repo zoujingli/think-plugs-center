@@ -16,7 +16,7 @@
 
 namespace plugin\center\controller;
 
-use plugin\center\service\PluginService;
+use plugin\center\service\Plugin as PluginService;
 use think\admin\Controller;
 use think\admin\service\ModuleService;
 
