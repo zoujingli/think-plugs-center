@@ -49,15 +49,16 @@ class Plugin
         $data = [];
         $onlines = static::getOnlinePlugs();
         $librarys = ModuleService::getLibrarys();
-        foreach (\think\admin\Plugin::all() as $code => $plugin) {
+        foreach (\think\admin\Plugin::all() as $pluginCode => $plugin) {
+            if (!isset($librarys[$plugin['package']])) continue;
             $online = $onlines[$plugin['package']] ?? [];
-            $library = $librarys[$plugin['package']] ?? [];
+            $library = $librarys[$plugin['package']];
             $pluginType = $library['type'] ?? '';
             $total[$pluginType] = ($total[$pluginType] ?? 0) + 1;
             if (is_string($type) && $pluginType !== $type) continue;
             $data[$plugin['package']] = [
                 'type'      => $pluginType,
-                'code'      => $code,
+                'code'      => $pluginCode,
                 'name'      => $online['name'] ?? ($library['name'] ?? ''),
                 'cover'     => $online['cover'] ?? ($library['cover'] ?? ''),
                 'amount'    => $online['amount'] ?? '0.00',

@@ -23,7 +23,6 @@ use plugin\center\service\Plugin;
 use think\admin\Controller;
 use think\admin\service\AdminService;
 use think\admin\service\MenuService;
-use think\admin\service\RuntimeService;
 
 /**
  * 插件应用管理
@@ -42,10 +41,10 @@ class Index extends Controller
     {
         $this->title = '管理已安装插件';
         $this->total = [];
+        $this->types = Plugin::types;
         $this->login = Login::check();
         $this->type = $this->request->get('type', 'module');
         $this->items = Plugin::getLocalPlugs($this->type, $this->total);
-        $this->types = Plugin::types;
         $this->fetch();
     }
 
@@ -65,7 +64,7 @@ class Index extends Controller
             $this->error('操作标识不能为空！');
         }
 
-        RuntimeService::swap('plugin-code', $code);
+        sysvar('plugin-code', $code);
         $this->plugin = \think\admin\Plugin::all($code);
 
         if (empty($this->plugin)) $this->error('插件未安装！');

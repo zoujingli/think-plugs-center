@@ -14,8 +14,6 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-center
 // +----------------------------------------------------------------------
 
-use think\admin\service\RuntimeService;
-
 if (!function_exists('plguri')) {
     /**
      * 生成插件后台 URL 地址
@@ -27,7 +25,7 @@ if (!function_exists('plguri')) {
      */
     function plguri(string $url = '', array $vars = [], $suffix = true, $domain = false): string
     {
-        $code = encode(RuntimeService::swap('plugin-code'));
+        $code = encode(sysvar('plugin-code'));
         return sysuri("layout/{$code}", [], false) . '#' . url($url, $vars, $suffix, $domain)->build();
     }
 }

@@ -4,8 +4,8 @@
 [![Total Downloads](https://poser.pugx.org/zoujingli/think-plugs-center/downloads)](https://packagist.org/packages/zoujingli/think-plugs-center)
 [![Monthly Downloads](https://poser.pugx.org/zoujingli/think-plugs-center/d/monthly)](https://packagist.org/packages/zoujingli/think-plugs-center)
 [![Daily Downloads](https://poser.pugx.org/zoujingli/think-plugs-center/d/daily)](https://packagist.org/packages/zoujingli/think-plugs-center)
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF.svg)](http://www.php.net)
-[![License](https://poser.pugx.org/zoujingli/think-plugs-center/license)](https://packagist.org/packages/zoujingli/think-plugs-center)
+[![PHP Version](https://doc.thinkadmin.top/static/icon/php-7.1.svg)](https://thinkadmin.top)
+[![License](https://doc.thinkadmin.top/static/icon/license-apache2.svg)](https://thinkadmin.top/vip-introduce)
 
 **ThinkAdmin** 插件中心，用于管理已安装的插件，后期也会开放线上插件市场！
 
