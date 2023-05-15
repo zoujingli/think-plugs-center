@@ -22,7 +22,7 @@ use think\admin\service\ModuleService;
 
 /**
  * 插件市场管理
- * Class Store
+ * @class Store
  * @package plugin\center\controller
  */
 class Store extends Controller

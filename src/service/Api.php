@@ -30,7 +30,7 @@ use think\exception\HttpResponseException;
  * @class Api
  * @package plugin\center\service
  */
-class Api
+abstract class Api
 {
     /**
      * 请用远程接口
@@ -80,7 +80,7 @@ class Api
             $rpc = Support::getServer() . 'plugin/api/jsonrpc';
         }
         $scode = CodeExtend::enSafe64(sysconf('base.site_name') . ' # ' . sysconf('base.app_version'));
-        $token = Library::$sapp->cache->get('plugin-jwt-token') ?: (sysdata('plugin.login.token')['token'] ?? '');
+        $token = Library::$sapp->cache->get('plugin-jwt-token') ?: (sysdata('plugin.center.login.token')['token'] ?? '');
         return new JsonRpcClient($rpc, ["api-name:{$uri}", "api-scode:{$scode}", "api-token:{$token}", "api-client:" . Support::getSysId()]);
     }
 
@@ -93,7 +93,7 @@ class Api
     public static function saveToken(string $token): bool
     {
         Library::$sapp->cache->set('plugin-jwt-token', $token);
-        return !!sysdata('plugin.login.token', [
+        return !!sysdata('plugin.center.login.token', [
             'token' => $token, 'utime' => date('Y-m-d H:i:s')
         ]);
     }
@@ -106,6 +106,6 @@ class Api
     public static function clearToken(): bool
     {
         Library::$sapp->cache->delete('plugin-jwt-token');
-        return !!sysdata('plugin.login.token', []);
+        return !!sysdata('plugin.center.login.token', []);
     }
 }

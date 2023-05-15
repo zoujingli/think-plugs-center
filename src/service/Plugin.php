@@ -20,10 +20,10 @@ use think\admin\service\ModuleService;
 
 /**
  * 插件数据服务
- * Class PluginService
+ * @class Plugin
  * @package plugin\center\service
  */
-class Plugin
+abstract class Plugin
 {
     const TYPE_MODULE = 'module';
     const TYPE_PLUGIN = 'plugin';

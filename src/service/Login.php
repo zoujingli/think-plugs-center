@@ -18,7 +18,12 @@ declare (strict_types=1);
 
 namespace plugin\center\service;
 
-class Login
+/**
+ * 登录检测服务
+ * @class Login
+ * @package plugin\center\service
+ */
+abstract class Login
 {
     /**
      * 检查登录状态

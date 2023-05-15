@@ -33,9 +33,6 @@ class Login extends Controller
      * 插件用户登录
      * @auth true
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function in()
     {
@@ -65,9 +62,6 @@ class Login extends Controller
      * 检查用户状态
      * @auth true
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function check()
     {
@@ -96,9 +90,6 @@ class Login extends Controller
      * 退出登录
      * @auth true
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function logout()
     {

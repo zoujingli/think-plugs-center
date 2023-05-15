@@ -60,13 +60,10 @@ class Index extends Controller
     public function layout(string $code = '')
     {
         $code = decode($code);
-        if (empty($code)) {
-            $this->error('操作标识不能为空！');
-        }
+        if (empty($code)) $this->error('操作标识不能为空！');
 
         sysvar('plugin-code', $code);
         $this->plugin = \think\admin\Plugin::all($code);
-
         if (empty($this->plugin)) $this->error('插件未安装！');
 
         // 读取插件菜单
