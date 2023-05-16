@@ -17,8 +17,11 @@
 ### 安装前建议尝试更新所有组件
 composer update --optimize-autoloader
 
-### 注意，插件仅支持在 ThinkAdmin v6.1 中使用
+### 安装稳定版本 ( 插件仅支持在 ThinkAdmin v6.1 中使用 )
 composer require zoujingli/think-plugs-center --optimize-autoloader
+
+### 安装测试版本（ 插件仅支持在 ThinkAdmin v6.1 中使用 ）
+composer require zoujingli/think-plugs-center dev-master --optimize-autoloader
 ```
 
 ### 卸载插件
