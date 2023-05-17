@@ -25,12 +25,12 @@ use think\admin\service\ModuleService;
  */
 abstract class Plugin
 {
-    const TYPE_MODULE = 'module';
-    const TYPE_PLUGIN = 'plugin';
-    const TYPE_SERVICE = 'service';
-    const TYPE_LIBRARY = 'library';
+    public const TYPE_MODULE = 'module';
+    public const TYPE_PLUGIN = 'plugin';
+    public const TYPE_SERVICE = 'service';
+    public const TYPE_LIBRARY = 'library';
 
-    const types = [
+    public const types = [
         self::TYPE_MODULE  => '系统应用',
         self::TYPE_PLUGIN  => '功能插件',
         self::TYPE_SERVICE => '基础服务',
