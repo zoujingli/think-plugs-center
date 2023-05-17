@@ -31,7 +31,7 @@ abstract class Plugin
     const TYPE_LIBRARY = 'library';
 
     const types = [
-        self::TYPE_MODULE  => '应用模块',
+        self::TYPE_MODULE  => '系统应用',
         self::TYPE_PLUGIN  => '功能插件',
         self::TYPE_SERVICE => '基础服务',
         self::TYPE_LIBRARY => '开发组件',
