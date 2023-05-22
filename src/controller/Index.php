@@ -23,6 +23,7 @@ use plugin\center\service\Plugin;
 use think\admin\Controller;
 use think\admin\service\AdminService;
 use think\admin\service\MenuService;
+use think\exception\HttpResponseException;
 
 /**
  * 插件应用管理
@@ -39,17 +40,26 @@ class Index extends Controller
      */
     public function index()
     {
-        $this->title = '管理已安装插件';
-        $this->total = [];
-        $this->types = Plugin::types;
-        $this->login = Login::check();
-        $this->type = $this->request->get('type', 'module');
-        $this->items = Plugin::getLocalPlugs($this->type, $this->total);
-        $this->fetch();
+        $this->default = sysdata('plugin.center.config')['default'] ?? '';
+        $default = $this->request->get('from') === 'force' ? '' : $this->default;
+        if (!empty($default) && Plugin::isInstall($default)) {
+            if (sysvar('CurrentPluginCode', $default)) throw new HttpResponseException(
+                json(['code' => 1, 'info' => '已设置默认插件', 'data' => strstr(plguri(), '#', true), 'wait' => 'false'])
+            );
+        } else {
+            $this->title = '管理已安装插件';
+            $this->total = [];
+            $this->types = Plugin::types;
+            $this->login = Login::check();
+            $this->type = $this->request->get('type', Plugin::TYPE_MODULE);
+            $this->items = Plugin::getLocalPlugs($this->type, $this->total);
+            $this->fetch();
+        }
     }
 
     /**
      * 显示插件菜单
+     * @login true
      * @param string $code
      * @throws \ReflectionException
      * @throws \think\admin\Exception
@@ -62,7 +72,7 @@ class Index extends Controller
         $code = decode($code);
         if (empty($code)) $this->error('操作标识不能为空！');
 
-        sysvar('plugin-code', $code);
+        sysvar('CurrentPluginCode', $code);
         $this->plugin = \think\admin\Plugin::all($code);
         if (empty($this->plugin)) $this->error('插件未安装！');
 
@@ -94,7 +104,7 @@ class Index extends Controller
         }
 
         array_unshift($menus, [
-            'id' => 0, 'url' => admuri('index/index'), 'icon' => 'layui-icon layui-icon-prev', 'title' => '返回插件中心',
+            'id' => 0, 'url' => admuri('index/index') . '?from=force', 'icon' => 'layui-icon layui-icon-prev', 'title' => '返回插件中心',
         ]);
 
         /*! 读取当前用户权限菜单树 */
@@ -109,6 +119,19 @@ class Index extends Controller
         $this->super = AdminService::isSuper();
         $this->theme = AdminService::getUserTheme();
         $this->fetch('layout/index');
+    }
+
+    /**
+     * 设置默认插件
+     * @auth true
+     * @return void
+     * @throws \think\admin\Exception
+     */
+    public function setDefault()
+    {
+        $data = $this->_vali(['default.require' => '默认插件不能为空！']);
+        sysdata('plugin.center.config', $data);
+        $this->success('设置默认插件成功！');
     }
 
     /**

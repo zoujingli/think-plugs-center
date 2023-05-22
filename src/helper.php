@@ -25,7 +25,7 @@ if (!function_exists('plguri')) {
      */
     function plguri(string $url = '', array $vars = [], $suffix = true, $domain = false): string
     {
-        $code = encode(sysvar('plugin-code'));
+        $code = encode(sysvar('CurrentPluginCode'));
         return sysuri("layout/{$code}", [], false) . '#' . url($url, $vars, $suffix, $domain)->build();
     }
 }

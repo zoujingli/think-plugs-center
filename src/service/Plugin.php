@@ -16,6 +16,7 @@
 
 namespace plugin\center\service;
 
+use think\admin\Plugin as PluginBase;
 use think\admin\service\ModuleService;
 
 /**
@@ -38,6 +39,16 @@ abstract class Plugin
     ];
 
     /**
+     * 判断插件是否安装
+     * @param string $code
+     * @return boolean
+     */
+    public static function isInstall(string $code): bool
+    {
+        return !empty(PluginBase::all($code));
+    }
+
+    /**
      * 获取本地插件
      * @param ?string $type 插件类型
      * @param array $total 类型统计
@@ -49,7 +60,7 @@ abstract class Plugin
         $data = [];
         $onlines = static::getOnlinePlugs();
         $librarys = ModuleService::getLibrarys();
-        foreach (\think\admin\Plugin::all() as $pluginCode => $plugin) {
+        foreach (PluginBase::all() as $pluginCode => $plugin) {
             if (!isset($librarys[$plugin['package']])) continue;
             $online = $onlines[$plugin['package']] ?? [];
             $library = $librarys[$plugin['package']];
