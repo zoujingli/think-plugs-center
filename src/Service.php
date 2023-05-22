@@ -22,11 +22,17 @@ use think\admin\Plugin;
 
 /**
  * 组件注册服务
- * Class Service
+ * @class Service
  * @package plugin\center
  */
 class Service extends Plugin
 {
+    /**
+     * 定义插件名称
+     * @var string
+     */
+    protected $appName = '插件管理';
+
     /**
      * 定义安装包名
      * @var string
@@ -34,7 +40,7 @@ class Service extends Plugin
     protected $package = 'zoujingli/think-plugs-center';
 
     /**
-     * 定义返回菜单
+     * 定义插件菜单
      * @return array
      */
     public static function menu(): array

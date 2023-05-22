@@ -39,13 +39,13 @@ abstract class Plugin
     ];
 
     /**
-     * 判断插件是否安装
+     * 判断安装状态
      * @param string $code
      * @return boolean
      */
     public static function isInstall(string $code): bool
     {
-        return !empty(PluginBase::all($code));
+        return !empty(PluginBase::get($code));
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class Plugin
         $data = [];
         $onlines = static::getOnlinePlugs();
         $librarys = ModuleService::getLibrarys();
-        foreach (PluginBase::all() as $pluginCode => $plugin) {
+        foreach (PluginBase::get() as $pluginCode => $plugin) {
             if (!isset($librarys[$plugin['package']])) continue;
             $online = $onlines[$plugin['package']] ?? [];
             $library = $librarys[$plugin['package']];
@@ -102,12 +102,12 @@ abstract class Plugin
 
     /**
      * 获取插件信息
-     * @param string $name
+     * @param string $code
      * @return mixed
      * @throws \think\admin\Exception
      */
-    public static function get(string $name = '')
+    public static function get(string $code = '')
     {
-        return Api::call('plugin.get', $name);
+        return Api::call('plugin.get', $code);
     }
 }

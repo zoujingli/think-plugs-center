@@ -115,9 +115,9 @@ class Index extends Controller
                 $menu['sub'] = $menus;
             }
         }
-
         $this->super = AdminService::isSuper();
         $this->theme = AdminService::getUserTheme();
+        $this->title = $this->plugin['name'] ?? '';
         $this->fetch('layout/index');
     }
 
