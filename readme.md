@@ -30,6 +30,10 @@ composer require zoujingli/think-plugs-center dev-master --optimize-autoloader
 composer remove zoujingli/think-plugs-center
 ```
 
+### 插件数据
+
+该插件未使用独立数据表；
+
 ### 版权说明
 
 **ThinkPlugsCenter** 遵循 **Apache2** 开源协议发布，并提供免费使用。
