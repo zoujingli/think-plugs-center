@@ -4,6 +4,7 @@
   "license": "Apache-2.0",
   "homepage": "https://thinkadmin.top",
   "description": "Plugin Center for ThinkAdmin",
+  "version": "dev-master",
   "authors": [
     {
       "name": "Anyon",
@@ -13,8 +14,8 @@
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
-    "zoujingli/think-install": "^1.0||dev-master",
-    "zoujingli/think-library": "^6.1||v6.0.x-dev"
+    "zoujingli/think-install": "^1.0|dev-master",
+    "zoujingli/think-library": "^6.1|v6.0.x-dev"
   },
   "autoload": {
     "files": [
@@ -30,13 +31,16 @@
         "plugin\\center\\Service"
       ]
     },
-    "config": {
-      "type": "service"
-    },
     "plugin": {
       "copy": {
         "stc/database": "database/migrations"
       }
+    },
+    "config": {
+      "type": "service",
+      "name": "插件管理中心",
+      "homepage": "https://thinkadmin.top",
+      "document": "https://thinkadmin.top/plugin/think-plugs-center.html"
     }
   },
   "minimum-stability": "dev",

@@ -31,7 +31,7 @@ class Service extends Plugin
      * 定义插件名称
      * @var string
      */
-    protected $appName = '插件管理';
+    protected $appName = '插件管理中心';
 
     /**
      * 定义安装包名
