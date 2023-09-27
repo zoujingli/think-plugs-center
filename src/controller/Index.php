@@ -48,11 +48,15 @@ class Index extends Controller
             );
         } else {
             $this->title = '管理已安装插件';
-            $this->total = [];
-            $this->types = Plugin::types;
-            $this->login = Login::check();
             $this->type = $this->request->get('type', Plugin::TYPE_MODULE);
+            $this->total = [];
             $this->items = Plugin::getLocalPlugs($this->type, $this->total);
+            foreach ($this->items as &$vo) {
+                $vo['encode'] = encode($vo['code']);
+                $vo['center'] = sysuri("layout/{$vo['encode']}", [], false);
+            }
+            $this->login = Login::check();
+            $this->types = Plugin::types;
             $this->fetch();
         }
     }

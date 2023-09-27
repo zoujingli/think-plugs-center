@@ -34,6 +34,10 @@
 {block name='content'}
 <style>
 
+    .layui-card-html {
+        min-height: 100%;
+    }
+
     .plugin-item {
     }
 
@@ -70,6 +74,15 @@
         box-shadow: 1px 1px 2px 0 rgba(50, 50, 54, 0.5);
     }
 </style>
+
+<script>
+    $(function () {
+        $('body').off('click', '[data-plugs-click]').on('click', '[data-plugs-click]', function () {
+            $('#p' + (this.dataset.plugsClick || 'plugin-encode')).trigger('click');
+        })
+    })
+</script>
+
 <div class="layui-tab layui-tab-card absolute" style="top:0;left:0;right:0;bottom:0;background:#fff">
     <ul class="layui-tab-title relative" style="z-index: 2">
         {foreach $types as $k=>$v}{if isset($total[$k])}{if isset($type) and $type eq $k}
@@ -83,7 +96,7 @@
             {foreach $items as $item}
             <div class="layui-col-xs12 layui-col-sm6 layui-col-md4 layui-col-lg3">
                 <div class="plugin-item">
-                    <div class="plugin-item-icon uploadimage" data-lazy-src="{$item.cover|default=''}">
+                    <div class="plugin-item-icon uploadimage" data-lazy-src="{$item.cover|default=''}" data-plugs-click="{$item.encode}">
                         <div class="plugin-item-tags">
                             <div class="layui-badge layui-bg-cyan pull-left" style="margin-top:3px" data-tips-text="插件应用名称">{$item.code|default=''}</div>
                             {if $item.license eq 'vips'}
@@ -106,7 +119,7 @@
                 </div>
                 <div class="margin-top-10">
                     {notempty name='item.plugmenus'}
-                    <a class="layui-btn layui-btn-sm" href="{:url('layout/'.encode($item.code),[],false,false)}">管理插件</a>
+                    <a class="layui-btn layui-btn-sm" id="p{$item.encode}" data-href="{$item.center}">管理插件</a>
                     {if auth('setdefault') and isset($default) and $default eq $item.code}
                     <a class="layui-btn layui-btn-sm layui-btn-normal pull-right" data-action="{:url('setdefault')}" data-value="default#0">取消默认</a>
                     {elseif auth('setdefault')}
