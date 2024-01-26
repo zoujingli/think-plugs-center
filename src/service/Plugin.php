@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | Center Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -78,7 +78,7 @@ abstract class Plugin
                 'service'   => $plugin['service'],
                 'package'   => $plugin['package'],
                 'license'   => $online['license'] ?? (empty($library['license']) ? 'unknow' : $library['license'][0]),
-                'licenses'  => $online['license_name'] ?? (empty($online['amount'] ?? '0.00') ? "免费使用" : "收费插件"),
+                'licenses'  => $online['license_name'] ?? (empty($online['amount'] ?? '0.00') ? "免费体验" : "收费插件"),
                 'platforms' => empty($plugin['platforms']) ? ($online['platforms'] ?? []) : $plugin['platforms'],
                 'plugmenus' => $plugin['service']::menu(),
             ];

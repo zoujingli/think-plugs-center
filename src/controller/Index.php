@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | Center Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2023 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,12 +18,11 @@ declare (strict_types=1);
 
 namespace plugin\center\controller;
 
+use plugin\center\Service;
 use plugin\center\service\Login;
 use plugin\center\service\Plugin;
 use think\admin\Controller;
 use think\admin\service\AdminService;
-use think\admin\service\MenuService;
-use think\exception\HttpResponseException;
 
 /**
  * 插件应用管理
@@ -42,23 +41,20 @@ class Index extends Controller
     {
         $this->default = sysdata('plugin.center.config')['default'] ?? '';
         $default = $this->request->get('from') === 'force' ? '' : $this->default;
-        if (!empty($default) && Plugin::isInstall($default)) {
-            if (sysvar('CurrentPluginCode', $default)) throw new HttpResponseException(
-                json(['code' => 1, 'info' => '已设置默认插件', 'data' => strstr(plguri(), '#', true), 'wait' => 'false'])
-            );
-        } else {
-            $this->title = '管理已安装插件';
-            $this->type = $this->request->get('type', Plugin::TYPE_MODULE);
-            $this->total = [];
-            $this->items = Plugin::getLocalPlugs($this->type, $this->total);
-            foreach ($this->items as &$vo) {
-                $vo['encode'] = encode($vo['code']);
-                $vo['center'] = sysuri("layout/{$vo['encode']}", [], false);
-            }
-            $this->login = Login::check();
-            $this->types = Plugin::types;
-            $this->fetch();
+        if (!empty($default) && Plugin::isInstall($default) && sysvar('CurrentPluginCode', $default)) {
+            return json(['code' => 1, 'info' => '已设置默认插件', 'data' => strstr(plguri(), '#', true), 'wait' => 'false']);
         }
+        $this->total = [];
+        $this->title = '应用插件管理';
+        $this->type = $this->request->get('type', Plugin::TYPE_MODULE);
+        $this->items = Plugin::getLocalPlugs($this->type, $this->total);
+        foreach ($this->items as &$vo) {
+            $vo['encode'] = encode($vo['code']);
+            $vo['center'] = sysuri("layout/{$vo['encode']}", [], false);
+        }
+        $this->login = Login::check();
+        $this->types = Plugin::types;
+        $this->fetch();
     }
 
     /**
@@ -107,18 +103,22 @@ class Index extends Controller
             }
         }
 
-        array_unshift($menus, [
-            'id' => 0, 'url' => admuri('index/index') . '?from=force', 'icon' => 'layui-icon layui-icon-prev', 'title' => lang('返回插件中心'),
-        ]);
-
         /*! 读取当前用户权限菜单树 */
-        $this->menus = MenuService::getTree();
-        foreach ($this->menus as &$menu) {
-            if ($menu['node'] === 'plugin-center/index/index') {
-                $menu['url'] = '#';
-                $menu['sub'] = $menus;
-            }
-        }
+        $this->menus = [
+            [
+                'id'    => 9999998,
+                'url'   => '#',
+                'sub'   => $menus,
+                'node'  => Service::getAppName(),
+                'title' => $this->plugin['name']
+            ],
+            [
+                'id'    => 9999999,
+                'url'   => admuri('index/index') . '?from=force',
+                'title' => '返回首页'
+            ]
+        ];
+
         $this->super = AdminService::isSuper();
         $this->theme = AdminService::getUserTheme();
         $this->title = $this->plugin['name'] ?? '';
