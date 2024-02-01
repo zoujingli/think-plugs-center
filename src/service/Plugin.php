@@ -51,36 +51,49 @@ abstract class Plugin
     /**
      * 获取本地插件
      * @param ?string $type 插件类型
-     * @param array $total 类型统计
+     * @param ?array $total 类型统计
+     * @param boolean $check 检查权限
      * @return array
+     * @throws \ReflectionException
      * @throws \think\admin\Exception
      */
-    public static function getLocalPlugs(?string $type = null, array &$total = []): array
+    public static function getLocalPlugs(?string $type = null, ?array &$total = [], bool $check = false): array
     {
-        $data = [];
-        $onlines = static::getOnlinePlugs();
-        $librarys = ModuleService::getLibrarys();
-        foreach (PluginBase::get() as $pluginCode => $plugin) {
-            if (!isset($librarys[$plugin['package']])) continue;
-            $online = $onlines[$plugin['package']] ?? [];
-            $library = $librarys[$plugin['package']];
-            $pluginType = $library['type'] ?? '';
-            $total[$pluginType] = ($total[$pluginType] ?? 0) + 1;
-            if (is_string($type) && $pluginType !== $type) continue;
-            $data[$plugin['package']] = [
-                'type'      => $pluginType,
-                'code'      => $pluginCode,
-                'name'      => $online['name'] ?? ($library['name'] ?? ''),
-                'cover'     => $online['cover'] ?? ($library['cover'] ?? ''),
+        if (is_null($total)) $total = [];
+        [$data, $plugins, $onlines] = [[], ModuleService::getLibrarys(), static::getOnlinePlugs()];
+        foreach (PluginBase::get() as $code => $packer) {
+            if (empty($plugins[$packer['package']])) continue;
+            // 插件类型过滤
+            $ptype = $plugins[$packer['package']]['type'] ?? '';
+            $total[$ptype] = ($total[$ptype] ?? 0) + 1;
+            if (is_string($type) && $ptype !== $type) continue;
+            // 插件菜单处理
+            $menus = $packer['service']::menu();
+            if ($check) foreach ($menus as $k1 => &$one) {
+                if (!empty($one['subs'])) foreach ($one['subs'] as $k2 => $two) {
+                    if (isset($two['node']) && !auth($two['node'])) unset($one['subs'][$k2]);
+                }
+                if ((empty($one['node']) && empty($one['subs'])) || (isset($one['node']) && !auth($one['node']))) {
+                    unset($menus[$k1]);
+                }
+            }
+            // 组件应用插件
+            $plugin = $plugins[$packer['package']];
+            $online = $onlines[$packer['package']] ?? [];
+            $data[$packer['package']] = [
+                'type'      => $ptype,
+                'code'      => $code,
+                'name'      => $online['name'] ?? ($plugin['name'] ?? ''),
+                'cover'     => $online['cover'] ?? ($plugin['cover'] ?? ''),
                 'amount'    => $online['amount'] ?? '0.00',
-                'remark'    => $online['remark'] ?? ($library['description'] ?? ''),
-                'version'   => $library['version'],
-                'service'   => $plugin['service'],
-                'package'   => $plugin['package'],
-                'license'   => $online['license'] ?? (empty($library['license']) ? 'unknow' : $library['license'][0]),
+                'remark'    => $online['remark'] ?? ($plugin['description'] ?? ''),
+                'version'   => $plugin['version'],
+                'service'   => $packer['service'],
+                'package'   => $packer['package'],
+                'license'   => $online['license'] ?? (empty($plugin['license']) ? 'unknow' : $plugin['license'][0]),
                 'licenses'  => $online['license_name'] ?? (empty($online['amount'] ?? '0.00') ? "免费体验" : "收费插件"),
-                'platforms' => empty($plugin['platforms']) ? ($online['platforms'] ?? []) : $plugin['platforms'],
-                'plugmenus' => $plugin['service']::menu(),
+                'platforms' => empty($packer['platforms']) ? ($online['platforms'] ?? []) : $packer['platforms'],
+                'plugmenus' => $menus,
             ];
         }
         return $data;

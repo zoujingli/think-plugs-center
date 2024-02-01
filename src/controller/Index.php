@@ -33,8 +33,10 @@ class Index extends Controller
 {
     /**
      * 管理已安装插件
-     * @auth true
      * @menu true
+     * @login true
+     * @return void|\think\Response
+     * @throws \ReflectionException
      * @throws \think\admin\Exception
      */
     public function index()
@@ -47,7 +49,7 @@ class Index extends Controller
         $this->total = [];
         $this->title = '应用插件管理';
         $this->type = $this->request->get('type', Plugin::TYPE_MODULE);
-        $this->items = Plugin::getLocalPlugs($this->type, $this->total);
+        $this->items = Plugin::getLocalPlugs($this->type, $this->total, true);
         foreach ($this->items as &$vo) {
             $vo['encode'] = encode($vo['code']);
             $vo['center'] = sysuri("layout/{$vo['encode']}", [], false);
@@ -60,17 +62,18 @@ class Index extends Controller
     /**
      * 显示插件菜单
      * @login true
-     * @param string $code
+     * @param string $encode
      * @throws \ReflectionException
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function layout(string $code = '')
+    public function layout(string $encode = '')
     {
-        $code = decode($code);
-        if (empty($code)) $this->error('操作标识不能为空！');
+        if (empty($code = decode($encode))) {
+            $this->error('插件不能为空！');
+        }
 
         sysvar('CurrentPluginCode', $code);
         $this->plugin = \think\admin\Plugin::get($code);
