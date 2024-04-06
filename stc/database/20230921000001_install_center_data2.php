@@ -15,7 +15,7 @@
 use think\admin\extend\PhinxExtend;
 use think\migration\Migrator;
 
-class InstallCenterData extends Migrator
+class InstallCenterData2 extends Migrator
 {
     public function change()
     {
@@ -28,7 +28,7 @@ class InstallCenterData extends Migrator
     {
         PhinxExtend::write2menu([
             [
-                'name' => '插件中心',
+                'name' => '插件入口',
                 'sort' => '999',
                 'node' => "plugin-center/index/index",
             ],

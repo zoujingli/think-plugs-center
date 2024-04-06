@@ -19,20 +19,19 @@ declare (strict_types=1);
 namespace plugin\center\controller;
 
 use plugin\center\Service;
-use plugin\center\service\Login;
 use plugin\center\service\Plugin;
 use think\admin\Controller;
 use think\admin\service\AdminService;
 
 /**
- * 插件应用管理
+ * 应用插件管理
  * Class Index
  * @package plugin\center\controller
  */
 class Index extends Controller
 {
     /**
-     * 管理已安装插件
+     * 应用插件入口
      * @menu true
      * @login true
      * @return void|\think\Response
@@ -41,28 +40,30 @@ class Index extends Controller
      */
     public function index()
     {
+        // 检查默认插件并自动跳转
         $this->default = sysdata('plugin.center.config')['default'] ?? '';
         $default = $this->request->get('from') === 'force' ? '' : $this->default;
         if (!empty($default) && Plugin::isInstall($default) && sysvar('CurrentPluginCode', $default)) {
             return json(['code' => 1, 'info' => '已设置默认插件', 'data' => strstr(plguri(), '#', true), 'wait' => 'false']);
         }
-        $this->total = [];
-        $this->title = '应用插件管理';
-        $this->type = $this->request->get('type', Plugin::TYPE_MODULE);
-        $this->items = Plugin::getLocalPlugs($this->type, $this->total, true);
+        $this->items = Plugin::getLocalPlugs('module', $total, true);
+        // 如果只有一个插件，自动进入应用插件
+        if ($this->request->get('from') !== 'force' && count($this->items) === 1) {
+            sysvar('CurrentPluginCode', array_pop($this->items)['code']);
+            return json(['code' => 1, 'info' => '进入应用插件', 'data' => strstr(plguri(), '#', true), 'wait' => 'false']);
+        }
+        // 插件列表跳转链接处理
         foreach ($this->items as &$vo) {
             $vo['encode'] = encode($vo['code']);
             $vo['center'] = sysuri("layout/{$vo['encode']}", [], false);
         }
-        $this->login = Login::check();
-        $this->types = Plugin::types;
         $this->fetch();
     }
 
     /**
      * 显示插件菜单
      * @login true
-     * @param string $encode
+     * @param string $encode 应用插件编码
      * @throws \ReflectionException
      * @throws \think\admin\Exception
      * @throws \think\db\exception\DataNotFoundException
@@ -72,9 +73,8 @@ class Index extends Controller
     public function layout(string $encode = '')
     {
         if (empty($code = decode($encode))) {
-            $this->error('插件不能为空！');
+            $this->error('应用插件不能为空！');
         }
-
         sysvar('CurrentPluginCode', $code);
         $this->plugin = \think\admin\Plugin::get($code);
         if (empty($this->plugin)) $this->error('插件未安装！');
@@ -112,7 +112,7 @@ class Index extends Controller
                 'id'    => 9999998,
                 'url'   => '#',
                 'sub'   => $menus,
-                'node'  => Service::getAppName(),
+                'node'  => Service::getAppCode(),
                 'title' => $this->plugin['name']
             ],
             [
@@ -123,8 +123,8 @@ class Index extends Controller
         ];
 
         $this->super = AdminService::isSuper();
-        $this->theme = AdminService::getUserTheme();
         $this->title = $this->plugin['name'] ?? '';
+        $this->theme = AdminService::getUserTheme();
         $this->fetch('layout/index');
     }
 
@@ -136,8 +136,9 @@ class Index extends Controller
      */
     public function setDefault()
     {
-        $data = $this->_vali(['default.require' => '默认插件不能为空！']);
-        sysdata('plugin.center.config', $data);
+        sysdata('plugin.center.config', $this->_vali([
+            'default.require' => '默认插件不能为空！'
+        ]));
         $this->success('设置默认插件成功！');
     }
 

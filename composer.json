@@ -37,7 +37,7 @@
     },
     "config": {
       "type": "service",
-      "name": "插件管理中心",
+      "name": "插件入口管理",
       "document": "https://thinkadmin.top/plugin/think-plugs-center.html"
     }
   },
