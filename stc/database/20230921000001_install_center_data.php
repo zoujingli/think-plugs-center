@@ -15,7 +15,7 @@
 use think\admin\extend\PhinxExtend;
 use think\migration\Migrator;
 
-class InstallCenterData2 extends Migrator
+class InstallCenterData extends Migrator
 {
     public function change()
     {

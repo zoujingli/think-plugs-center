@@ -8,7 +8,9 @@
 [![License](https://thinkadmin.top/static/icon/license-apache2.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 **ThinkAdmin** 插件管理中心是一个高效便捷的工具，专为管理已安装的插件而设计。
+
 自 `v1.0.28` 版本起，该中心不再加载线上插件信息，从而确保在内网环境下安全稳定运行，无需依赖外网支持。
+
 此外，我们还对插件机制进行了优化，替换了原有的 **ThinkPlugsSimpleCenter** 模式，进一步简化了插件管理流程。
 
 代码主仓库位于 **Gitee** 平台，而 **Github** 则作为镜像仓库，主要用于发布 **Composer** 包，方便开发者集成和使用。
