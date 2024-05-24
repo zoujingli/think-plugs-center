@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-center
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 use plugin\center\controller\Index;
 use think\admin\Library;
 

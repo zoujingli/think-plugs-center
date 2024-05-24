@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-center
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 if (!function_exists('plguri')) {
     /**
      * 生成插件后台 URL 地址
@@ -25,8 +27,8 @@ if (!function_exists('plguri')) {
      */
     function plguri(string $url = '', array $vars = [], $suffix = true, $domain = false): string
     {
-        $code = encode(sysvar('CurrentPluginCode'));
-        return sysuri("layout/{$code}", [], false) . '#' . url($url, $vars, $suffix, $domain)->build();
+        $encode = encode(sysvar('CurrentPluginCode'));
+        return sysuri("layout/{$encode}", [], false) . '#' . url($url, $vars, $suffix, $domain)->build();
     }
 }
 

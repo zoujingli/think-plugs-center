@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-center
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace plugin\center\service;
 
 use think\admin\Plugin as PluginBase;
@@ -51,21 +53,16 @@ abstract class Plugin
     /**
      * 获取本地插件
      * @param ?string $type 插件类型
-     * @param ?array $total 类型统计
      * @param boolean $check 检查权限
      * @return array
-     * @throws \ReflectionException
-     * @throws \think\admin\Exception
      */
-    public static function getLocalPlugs(?string $type = null, ?array &$total = [], bool $check = false): array
+    public static function getLocalPlugs(?string $type = null, bool $check = false): array
     {
-        if (is_null($total)) $total = [];
         [$data, $plugins] = [[], ModuleService::getLibrarys()];
         foreach (PluginBase::get() as $code => $packer) {
             if (empty($plugins[$packer['package']])) continue;
             // 插件类型过滤
             $ptype = $plugins[$packer['package']]['type'] ?? '';
-            $total[$ptype] = ($total[$ptype] ?? 0) + 1;
             if (is_string($type) && $ptype !== $type) continue;
             // 插件菜单处理
             $menus = $packer['service']::menu();
@@ -82,6 +79,7 @@ abstract class Plugin
                 if (empty($menus)) continue;
             }
             // 组件应用插件
+            $encode = encode($code);
             $plugin = $plugins[$packer['package']];
             $data[$packer['package']] = [
                 'type'      => $ptype,
@@ -97,6 +95,8 @@ abstract class Plugin
                 'licenses'  => "",
                 'platforms' => $packer['platforms'] ?? [],
                 'plugmenus' => $menus,
+                'encode'    => $encode,
+                'center'    => sysuri("layout/{$encode}", [], false)
             ];
         }
         return $data;

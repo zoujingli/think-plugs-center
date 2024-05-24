@@ -22,6 +22,7 @@ use plugin\center\Service;
 use plugin\center\service\Plugin;
 use think\admin\Controller;
 use think\admin\service\AdminService;
+use think\Response;
 
 /**
  * 应用插件管理
@@ -35,27 +36,23 @@ class Index extends Controller
      * @menu true
      * @login true
      * @return void|\think\Response
-     * @throws \ReflectionException
      * @throws \think\admin\Exception
      */
     public function index()
     {
-        // 检查默认插件并自动跳转
+        // 读取有菜单的插件列表
+        $this->items = Plugin::getLocalPlugs('module', true);
+        $this->codes = array_column($this->items, 'code');
         $this->default = sysdata('plugin.center.config')['default'] ?? '';
-        $default = $this->request->get('from') === 'force' ? '' : $this->default;
-        if (!empty($default) && Plugin::isInstall($default) && sysvar('CurrentPluginCode', $default)) {
-            return json(['code' => 1, 'info' => '已设置默认插件', 'data' => strstr(plguri(), '#', true), 'wait' => 'false']);
-        }
-        $this->items = Plugin::getLocalPlugs('module', $total, true);
-        // 如果只有一个插件，自动进入应用插件
-        if ($this->request->get('from') !== 'force' && count($this->items) === 1) {
-            sysvar('CurrentPluginCode', array_pop($this->items)['code']);
-            return json(['code' => 1, 'info' => '进入应用插件', 'data' => strstr(plguri(), '#', true), 'wait' => 'false']);
-        }
-        // 插件列表跳转链接处理
-        foreach ($this->items as &$vo) {
-            $vo['encode'] = encode($vo['code']);
-            $vo['center'] = sysuri("layout/{$vo['encode']}", [], false);
+        if ($this->request->get('from') !== 'force') {
+            // 检查默认插件并自动跳转
+            if (in_array($this->default, $this->codes)) {
+                return $this->openPlugin($this->default, '打开默认插件');
+            }
+            // 如果只有一个插件则自动进入插件
+            if (count($this->codes) === 1) {
+                return $this->openPlugin(array_pop($this->codes));
+            }
         }
         $this->fetch();
     }
@@ -77,7 +74,7 @@ class Index extends Controller
         }
         sysvar('CurrentPluginCode', $code);
         $this->plugin = \think\admin\Plugin::get($code);
-        if (empty($this->plugin)) $this->error('插件未安装！');
+        if (empty($this->plugin)) $this->fetchError('插件未安装！');
 
         // 读取插件菜单
         $menus = $this->plugin['service']::menu();
@@ -121,7 +118,6 @@ class Index extends Controller
                 'title' => '返回首页'
             ]
         ];
-
         $this->super = AdminService::isSuper();
         $this->title = $this->plugin['name'] ?? '';
         $this->theme = AdminService::getUserTheme();
@@ -143,10 +139,22 @@ class Index extends Controller
     }
 
     /**
+     * 跳转到指定插件
+     * @param string $code
+     * @param string $name
+     * @return \think\Response
+     */
+    private function openPlugin(string $code, string $name = '打开插件'): Response
+    {
+        $href = sysuri(sprintf('layout/%s', encode(sysvar('CurrentPluginCode', $code))), [], false);
+        return json(['code' => 1, 'info' => $name, 'data' => $href, 'wait' => 'false']);
+    }
+
+    /**
      * 显示异常模板
      * @return void
      */
-    protected function fetchError(string $content)
+    private function fetchError(string $content)
     {
         $this->content = $content;
         $this->fetch('layout/error');
