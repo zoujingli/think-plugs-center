@@ -49,11 +49,12 @@ class Index extends Controller
             if (in_array($this->default, $this->codes)) {
                 return $this->openPlugin($this->default, '打开默认插件');
             }
-            // 如果只有一个插件则自动进入插件
+            // 只有一个插件则自动进入插件
             if (count($this->codes) === 1) {
-                return $this->openPlugin(array_pop($this->codes));
+                return $this->openPlugin(array_pop($this->codes), '打开指定插件');
             }
         }
+        // 显示插件列表
         $this->fetch();
     }
 
@@ -70,7 +71,7 @@ class Index extends Controller
     public function layout(string $encode = '')
     {
         if (empty($code = decode($encode))) {
-            $this->error('应用插件不能为空！');
+            $this->fetchError('应用插件不能为空！');
         }
         sysvar('CurrentPluginCode', $code);
         $this->plugin = \think\admin\Plugin::get($code);
@@ -114,7 +115,8 @@ class Index extends Controller
             ],
             [
                 'id'    => 9999999,
-                'url'   => admuri('index/index') . '?from=force',
+                'url'   => admuri('index/index', ['from' => 'force']),
+                'node'  => 'plugin-center/index/index',
                 'title' => '返回首页'
             ]
         ];
@@ -144,7 +146,7 @@ class Index extends Controller
      * @param string $name
      * @return \think\Response
      */
-    private function openPlugin(string $code, string $name = '打开插件'): Response
+    private function openPlugin(string $code, string $name = '打开指定插件'): Response
     {
         $href = sysuri(sprintf('layout/%s', encode(sysvar('CurrentPluginCode', $code))), [], false);
         return json(['code' => 1, 'info' => $name, 'data' => $href, 'wait' => 'false']);
