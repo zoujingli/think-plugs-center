@@ -113,13 +113,16 @@ class Index extends Controller
                 'node'  => Service::getAppCode(),
                 'title' => $this->plugin['name']
             ],
-            [
+        ];
+        // 如果插件数量大于1，显示返回插件列表
+        if (count(Plugin::getLocalPlugs('module', true)) > 1) {
+            $this->menus[] = [
                 'id'    => 9999999,
                 'url'   => admuri('index/index', ['from' => 'force']),
                 'node'  => 'plugin-center/index/index',
                 'title' => '返回首页'
-            ]
-        ];
+            ];
+        }
         $this->super = AdminService::isSuper();
         $this->title = $this->plugin['name'] ?? '';
         $this->theme = AdminService::getUserTheme();
